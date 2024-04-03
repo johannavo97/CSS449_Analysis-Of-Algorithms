@@ -47,8 +47,6 @@ public class MatchedPet {
 
         // Implement Gale-Shapley algorithm
 
-        // TODO: Your code here
-
         // Initialize all people to be free
         List<Boolean> peopleFree = new ArrayList<>();
         for (int i = 0; i < people.size(); i++) {
@@ -104,10 +102,10 @@ public class MatchedPet {
                     int owner = petOwner.get(pet);
 
                     // Get the preferences of the pet
-                    List<Integer> petPreferences = petPreferences.get(pet);
+                    List<Integer> specificPetPreferences = petPreferences.get(pet);
 
                     // If the person is more preferred than the owner
-                    if (petPreferences.indexOf(person) < petPreferences.indexOf(owner)) {
+                    if (specificPetPreferences.indexOf(person) < specificPetPreferences.indexOf(owner)) {
                         // Assign the pet to the person
                         peoplePet.set(person, pet);
                         petOwner.set(pet, person);
