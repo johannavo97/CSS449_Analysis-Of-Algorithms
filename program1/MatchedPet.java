@@ -1,130 +1,95 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Scanner;
 
 public class MatchedPet {
-    public static void main(String[] args) {
-        // Read input from file
-        List<String> people = new ArrayList<>();
-        List<List<Integer>> peoplePreferences = new ArrayList<>();
-        List<String> pets = new ArrayList<>();
-        List<List<Integer>> petPreferences = new ArrayList<>();
 
-        try {
-            Scanner scanner = new Scanner(new File("program1data.txt"));
-            int n = Integer.parseInt(scanner.nextLine());
+    public static void main(String[] args) throws FileNotFoundException {
+        Scanner sc = new Scanner(new File("program1data.txt"));
+        int n = Integer.parseInt(sc.nextLine());
+        ArrayList<String> people = new ArrayList<>();
+        ArrayList<String> pets = new ArrayList<>();
+        int[][] peoplePreferences = new int[n][n];
+        int[][] petsPreferences = new int[n][n];
 
-            for (int i = 0; i < n; i++) {
-                people.add(scanner.nextLine());
+        // Reading people names
+        for (int i = 0; i < n; i++) {
+            people.add(sc.nextLine());
+        }
+
+        // Reading people preferences
+        for (int i = 0; i < n; i++) {
+            String[] preferences = sc.nextLine().split(" ");
+            for (int j = 0; j < n; j++) {
+                peoplePreferences[i][j] = Integer.parseInt(preferences[j]) - 1;
             }
+        }
 
-            for (int i = 0; i < n; i++) {
-                List<Integer> preferences = new ArrayList<>();
-                String[] preferencesStr = scanner.nextLine().split(" ");
-                for (String preference : preferencesStr) {
-                    preferences.add(Integer.parseInt(preference));
-                }
-                peoplePreferences.add(preferences);
+        // Reading pets names
+        for (int i = 0; i < n; i++) {
+            pets.add(sc.nextLine());
+        }
+
+        // Reading pets preferences
+        for (int i = 0; i < n; i++) {
+            String[] preferences = sc.nextLine().split(" ");
+            for (int j = 0; j < n; j++) {
+                petsPreferences[i][j] = Integer.parseInt(preferences[j]) - 1;
             }
-
-            for (int i = 0; i < n; i++) {
-                pets.add(scanner.nextLine());
-            }
-
-            for (int i = 0; i < n; i++) {
-                List<Integer> preferences = new ArrayList<>();
-                String[] preferencesStr = scanner.nextLine().split(" ");
-                for (String preference : preferencesStr) {
-                    preferences.add(Integer.parseInt(preference));
-                }
-                petPreferences.add(preferences);
-            }
-
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         }
 
-        // Implement Gale-Shapley algorithm
+        sc.close();
 
-        // Initialize all people to be free
-        List<Boolean> peopleFree = new ArrayList<>();
-        for (int i = 0; i < people.size(); i++) {
-            peopleFree.add(true);
+        int[] petPartner = new int[n];
+        boolean[] petMatched = new boolean[n];
+        for (int i = 0; i < n; i++) {
+            petPartner[i] = -1;
         }
 
-        // Initialize all pets to be free
-        List<Boolean> petsFree = new ArrayList<>();
-        for (int i = 0; i < pets.size(); i++) {
-            petsFree.add(true);
-        }
+        int freeCount = n;
 
-        // Initialize all people to have no pet
-        List<Integer> peoplePet = new ArrayList<>();
-        for (int i = 0; i < people.size(); i++) {
-            peoplePet.add(-1);
-        }
-
-        // Initialize all pets to have no owner
-        List<Integer> petOwner = new ArrayList<>();
-        for (int i = 0; i < pets.size(); i++) {
-            petOwner.add(-1);
-        }
-
-        // While there is a free person
-        while (peopleFree.contains(true)) {
-            // Get the first free person
-            int person = peopleFree.indexOf(true);
-
-            // Get the preferences of the person
-            List<Integer> preferences = peoplePreferences.get(person);
-
-            // For each preference
-            for (int i = 0; i < preferences.size(); i++) {
-                // Get the pet
-                int pet = preferences.get(i);
-
-                // If the pet is free
-                if (petsFree.get(pet)) {
-                    // Assign the pet to the person
-                    peoplePet.set(person, pet);
-                    petOwner.set(pet, person);
-
-                    // Mark the person as not free
-                    peopleFree.set(person, false);
-
-                    // Mark the pet as not free
-                    petsFree.set(pet, false);
-
+        while (freeCount > 0) {
+            int freePerson;
+            for (freePerson = 0; freePerson < n; freePerson++) {
+                if (petPartner[freePerson] == -1) {
                     break;
+                }
+            }
+
+            for (int i = 0; i < n && petPartner[freePerson] == -1; i++) {
+                int pet = peoplePreferences[freePerson][i];
+
+                if (!petMatched[pet]) {
+                    petPartner[freePerson] = pet;
+                    petMatched[pet] = true;
+                    freeCount--;
                 } else {
-                    // Get the current owner of the pet
-                    int owner = petOwner.get(pet);
+                    int currentPartner = -1;
+                    for (int j = 0; j < n; j++) {
+                        if (petPartner[j] == pet) {
+                            currentPartner = j;
+                            break;
+                        }
+                    }
 
-                    // Get the preferences of the pet
-                    List<Integer> specificPetPreferences = petPreferences.get(pet);
+                    int freePersonRank = -1, currentPartnerRank = -1;
+                    for (int j = 0; j < n; j++) {
+                        if (petsPreferences[pet][j] == freePerson) freePersonRank = j;
+                        if (petsPreferences[pet][j] == currentPartner) currentPartnerRank = j;
+                    }
 
-                    // If the person is more preferred than the owner
-                    if (specificPetPreferences.indexOf(person) < specificPetPreferences.indexOf(owner)) {
-                        // Assign the pet to the person
-                        peoplePet.set(person, pet);
-                        petOwner.set(pet, person);
-
-                        // Mark the person as not free
-                        peopleFree.set(person, false);
-
-                        // Mark the owner as free
-                        peopleFree.set(owner, true);
-
-                        break;
+                    if (freePersonRank < currentPartnerRank) {
+                        petPartner[freePerson] = pet;
+                        petPartner[currentPartner] = -1;
                     }
                 }
             }
         }
 
-        // Print the matched pairs
-        for (int i = 0; i < people.size(); i++) {
-            System.out.println(people.get(i) + " / " + pets.get(i));
+        for (int i = 0; i < petPartner.length; i++) {
+            System.out.println(people.get(i) + " / " + pets.get(petPartner[i]));
         }
     }
 }
