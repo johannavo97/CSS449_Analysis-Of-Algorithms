@@ -88,7 +88,6 @@ public:
     double findClosestPair() {
         return closestPairUtil(0, points.size() - 1);
     }
-
     // Public method to get the number of points
     size_t size() const {
         return points.size();
@@ -96,7 +95,7 @@ public:
 };
 
 int main() {
-    PointSet ps("program2data.txt");
+    PointSet ps("program2trivialdata.txt");
     double closestDistance = ps.findClosestPair();
     std::cout << std::fixed << std::setprecision(4) << "D[0," << ps.points.size() - 1 << "]: " << closestDistance << std::endl;
     return 0;
