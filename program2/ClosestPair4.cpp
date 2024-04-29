@@ -40,6 +40,10 @@ double bruteForce(const std::vector<Point>& points, int left, int right) {
 }
 
 double closestSplitPair(const std::vector<Point>& px, const std::vector<Point>& py, double delta, int mid) {
+    // If there are three or fewer points, use brute force to calculate the distance
+    if (py.size() <= 3) {
+        return bruteForce(py, 0, py.size() - 1);
+    }
     double minDist = delta;
     std::vector<Point> stripe;
 
@@ -62,7 +66,7 @@ double closestPairRecursive(std::vector<Point>& px, std::vector<Point>& py, int 
     if (right - left <= 3) {
         // Print the current range and the computed distance for brute force calculation.
         double distance = bruteForce(px, left, right);
-        std::cout << "D[" << left << "," << right << "]: " << std::fixed << std::setprecision(4) << distance << std::endl;
+//        std::cout << "D[" << left << "," << right << "]: " << std::fixed << std::setprecision(4) << distance << std::endl;
         return distance;
     }
 
@@ -81,7 +85,7 @@ double closestPairRecursive(std::vector<Point>& px, std::vector<Point>& py, int 
     double finalMin = std::min(d, dSplit);
 
     // Print the current range and the computed minimum distance.
-    std::cout << "D[" << left << "," << right << "]: " << std::fixed << std::setprecision(4) << finalMin << std::endl;
+//    std::cout << "D[" << left << "," << right << "]: " << std::fixed << std::setprecision(4) << finalMin << std::endl;
     return finalMin;
 }
 
